@@ -18,16 +18,15 @@ Mongo::Logger.logger.level = ::Logger::WARN
 puts "## Connecting to #{opts[:host]}, and db #{opts[:database]}"
 DB = Mongo::Client.new(opts[:host], database: opts[:database])
 
-#DB[opts[:collection]].drop
+# DB[opts[:collection]].drop
 begin
-    puts "--- Creating Index"
-    DB[opts[:bucket]].indexes.create_one({ key: 1},unique: true,name: 'ix_key', expire_after: 345600)    
-rescue => exception
-    puts "Index probably already exists -> #{exception}"
+  puts '--- Creating Index'
+  DB[opts[:bucket]].indexes.create_one({ key: 1 }, unique: true, name: 'ix_key', expire_after: 345_600)
+rescue StandardError => e
+  puts "Index probably already exists -> #{e}"
 end
 
-
-def listbuckets(s3_client, bucket_name, max_objects,db)
+def listbuckets(s3_client, bucket_name, max_objects, db)
   objects = s3_client.list_objects_v2(
     bucket: bucket_name,
     max_keys: max_objects
@@ -38,14 +37,10 @@ def listbuckets(s3_client, bucket_name, max_objects,db)
     nil
   else
     objects.each do |object|
-        
-    begin
-        result = db.insert_one(object.to_hash)
-        puts "---- #{object.key} inserted into DB "
-    rescue => exception
-        puts "---- Probably a dupe ---> #{object.key}"        
-    end
-
+      result = db.insert_one(object.to_hash)
+      puts "---- #{object.key} inserted into DB "
+    rescue StandardError => e
+      puts "---- Probably a dupe ---> #{object.key}"
     end
   end
 rescue StandardError => e
