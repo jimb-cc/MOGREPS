@@ -25,7 +25,7 @@ DB = Mongo::Client.new(opts[:host], database: opts[:database])
 
 bucket_name = 'aws-earth-mo-atmospheric-global-prd'
 object_key = '00d4ece55c3f2330f9a90879d25e0964df242ab1.nc'
-local_path = "./#{object_key}"
+local_path = "./files/#{object_key}"
 region = opts[:awsregion]
 s3_client = Aws::S3::Client.new(region: region)
 
